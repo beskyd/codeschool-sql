@@ -63,6 +63,15 @@
     ALTER TABLE movies ADD COLUMN ratings int;
     ALTER TABLE movies DROP COLUMN ratings;
 
+    <!--rename column (for Oracle and PostgreSQL)-->
+    ALTER TABLE table_name RENAME COLUMN old_name TO new_name;
+    <!--rename column (for MySQL and MariaDB)-->
+    ALTER TABLE table_name CHANGE COLUMN old_name TO new_name;
+    
+    <!--modify column (for Oracle, MySQL, MariaDB)-->
+    ALTER TABLE table_name MODIFY column_name column_type;
+    <!--modify column (for PostgreSQL)-->
+    ALTER TABLE table_name ALTER COLUMN column_name TYPE column_definition;
 
 
 
