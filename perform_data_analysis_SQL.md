@@ -30,3 +30,7 @@ Display columns of the table called `groceries`
 ```postgresql
     \d groceries
 ```
+Copy entries from a `csv` file to the db
+```sql
+    COPY spending FROM '/home/ubuntu/workspace/codeschool/spending.csv' DELIMITER ',' CSV;
+```
