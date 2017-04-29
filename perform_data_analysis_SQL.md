@@ -14,7 +14,19 @@ List all databases
 ```postgresql
     \l
 ```
+Create a PostgreSQL db
+```postgresql
+   CREATE DATABASE "groceries" 
+```
 Connect to db
 ```postgresql
     \connect db_name
+```
+Display tables
+```postgresql
+    \dt
+```
+Display columns of the table called `groceries`
+```postgresql
+    \d groceries
 ```
