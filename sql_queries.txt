@@ -25,3 +25,10 @@ SELECT COUNT(city), city FROM (SELECT city FROM sacramento WHERE price > 500000)
 
 # select using wildcard
 SELECT DISTINCT city FROM sacramento WHERE city LIKE '%ora%';
+
+# export a query to a csv file
+COPY (SELECT DISTINCT city FROM sacramento ORDER BY city ASC) TO '/home/ubuntu/workspace/codeschool/cities.csv' HEADER DELIMITER ',' CSV;
+
+# *Note!*
+# To avoid 'could not open file ...; permission denied' error (e.g. on Cloud9) add '\' before 'copy'
+\COPY (SELECT DISTINCT city FROM sacramento ORDER BY city ASC) TO '/home/ubuntu/workspace/codeschool/cities.csv' HEADER DELIMITER ',' CSV;
