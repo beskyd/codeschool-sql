@@ -34,3 +34,7 @@ Copy entries from a `csv` file to the db
 ```sql
     COPY spending FROM '/home/ubuntu/workspace/codeschool/spending.csv' DELIMITER ',' CSV;
 ```
+In case there is headers, add `HEADER` keyword
+```sql
+    COPY spending FROM '/home/ubuntu/workspace/codeschool/spending.csv' HEADER DELIMITER ',' CSV;
+```
