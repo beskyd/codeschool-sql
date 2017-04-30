@@ -12,3 +12,12 @@ CREATE TABLE sacramento (
     latitude float,
     longitude float
 );
+
+SELECT sale_date, price, street, city FROM sacramento WHERE price > 500000 ORDER BY price DESC;
+
+SELECT COUNT (DISTINCT city) FROM sacramento WHERE price > 500000;
+
+
+
+# list number of city entries and city's name where price > 500000. Note ``GROUP BY`` keyword
+SELECT COUNT(city), city FROM (SELECT city FROM sacramento WHERE price > 500000) AS cities GROUP BY city ORDER BY COUNT(city) DESC;
