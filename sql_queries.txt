@@ -1,0 +1,14 @@
+CREATE TABLE sacramento (
+    street varchar(100),
+    city varchar(50),
+    zip integer,
+    state varchar(2),
+    beds integer,
+    baths integer,
+    sq__ft integer,
+    type varchar(50),
+    sale_date date,
+    price integer,
+    latitude float,
+    longitude float
+);
