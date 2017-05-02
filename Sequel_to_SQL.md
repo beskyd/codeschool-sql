@@ -1,4 +1,4 @@
-Using the COUNT function
+Using the `COUNT` function
 ```sql
     SELECT COUNT(*) FROM movies;
     SELECT COUNT(column_name) FROM table_name;
@@ -10,11 +10,11 @@ Other aggregate functions (work only with numbers)
     SELECT MIN(column_name) FROM table_name;
     SELECT MAX(column_name) FROM table_name;
 ```
-Using the GROUP BY clause
+Using the `GROUP BY` clause
 ```sql
     SELECT genre, sum(cost) FROM Movies GROUP BY genre;
 ```
-Using the HAVING clause to only include genres that have more than 1 movie.
+Using the `HAVING` clause to only include genres that have more than 1 movie.
 ```sql
     SELECT genre, sum(cost) FROM Movies GROUP BY genre HAVING COUNT(*) > 1;
 ```
@@ -35,7 +35,7 @@ Table constraints (same effect as column constraint above)
         CONSTRAINT unique_name UNIQUE (name, category)
     );
 ```
-Primary key constraint can only be set once per table
+`Primary key` constraint can only be set once per table
 ```sql
     CREATE TABLE Promotions (
         id int PRIMARY KEY,
@@ -43,7 +43,7 @@ Primary key constraint can only be set once per table
         category varchar(15)
     );
 ```
-Foreign key constraint
+`Foreign key` constraint
 ```sql
     CREATE TABLE Promotions (
         id int PRIMARY KEY,
@@ -61,7 +61,7 @@ You can also omit id, because its the default value
         category varchar(15)
     );
 ```
-Foreign key table constraint
+`Foreign key` table constraint
 ```sql
     CREATE TABLE Promotions (
         id int PRIMARY KEY,
@@ -71,7 +71,7 @@ Foreign key table constraint
         FOREIGN KEY (movie_id) REFERENCES movies
     );
 ```
-Check constraint
+`check` constraint
 ```sql
     CREATE TABLE Movies (
         id int PRIMARY KEY,
@@ -79,3 +79,32 @@ Check constraint
         genre varchar(20),
         duration int CHECK(duration > 0)
     );
+```
+---
+#### Normalization
+
+> Normalization is the process of reducing duplication in database tables
+
+**First Normal Form Rule:** *Tables must not contain repeating groups of data in 1 column*.
+
+**Second Normal Form Rule:** *Tables must not contain redundancy (unnecessary repeating information)*
+
+---
+
+Join table creation
+```sql
+    CREATE TABLE Actors_Movies (
+        actor_id int REFERENCES Actors,
+        movie_id int REFERENCES Movies
+    );
+```
+One-to-one relationship
+```sql
+    CREATE TABLE Rooms (
+        id int PRIMARY KEY,
+        seats int,
+        movie_id int UNIQUE,
+        FOREIGN KEY (movie_id) REFERENCES Movies
+    );
+```
+
