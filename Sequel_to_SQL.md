@@ -1,3 +1,5 @@
+#### Aggregate functions
+
 Using the `COUNT` function
 ```sql
     SELECT COUNT(*) FROM movies;
@@ -18,6 +20,8 @@ Using the `HAVING` clause to only include genres that have more than 1 movie.
 ```sql
     SELECT genre, sum(cost) FROM Movies GROUP BY genre HAVING COUNT(*) > 1;
 ```
+#### Constraints
+
 Column constraints
 ```sql
     CREATE TABLE Promotions (
@@ -107,4 +111,91 @@ One-to-one relationship
         FOREIGN KEY (movie_id) REFERENCES Movies
     );
 ```
+#### Inner Join
+```sql
+    SELECT * FROM Movies INNER JOIN Reviews ON Movies.id = Reviews.movie_id;
+```
+or (same rusult)
+```sql
+    SELECT * FROM Reviews INNER JOIN Movies ON Reviews.movie_id = Movies.id;
+```
+Extract only some columns
+```sql
+    SELECT Movies.title, Reviews.review 
+    FROM Movies 
+    INNER JOIN Reviews 
+    ON Movies.id = Reviews.movie_id;
+```
+`Inner Join` on multiple tables
+```sql
+    SELECT Movies.title, Genres.name 
+    FROM Movies 
+    INNER JOIN Movies_Genres 
+    ON Movies.id = Movies_Genres.movie_id 
+    INNER JOIN Genres 
+    ON Movies_Genres.genre_id = Genres.id
+    WHERE Movies.title = "Peter Pan"
+    ORDER BY Movies.title ASC;
+```
+#### Aliases
 
+Using column aliases
+```sql
+    SELECT Movies.title AS Films, Reviews.review AS Reviews 
+    FROM Movies 
+    INNER JOIN Reviews 
+    ON Movies.id = Reviews.movie_id;
+```
+or simply omitting `AS`
+```sql
+    SELECT Movies.title Films, Reviews.review Reviews 
+    FROM Movies 
+    INNER JOIN Reviews 
+    ON Movies.id = Reviews.movie_id;
+```
+For multiple words aliases or capitalization use quotes
+```sql
+    SELECT Movies.title "Weekly Movies", Reviews.review "Weekly Reviews" 
+    FROM Movies 
+    INNER JOIN Reviews 
+    ON Movies.id = Reviews.movie_id;
+```
+Using table aliases
+```sql
+    SELECT m.title "Weekly Movies", r.review "Weekly Reviews" 
+    FROM Movies m
+    INNER JOIN Reviews r
+    ON m.id = r.movie_id;
+```
+#### Outer Join
+
+Left Outer Join : *All movies info and only the reviews associated with them*
+```sql
+    SELECT * 
+    FROM Movies 
+    LEFT OUTER JOIN Reviews 
+    ON Movies.id = Reviews.movie_id;
+```
+or finding matching columns with aliases
+```sql
+    SELECT m.title, r.review 
+    FROM Movies m
+    LEFT OUTER JOIN Reviews r 
+    ON m.id = r.movie_id 
+    ORDER BY r.id;
+```
+Right Outer Join : *All reviews and only movies that are associated with reviews*
+```sql
+    SELECT * 
+    FROM Movies 
+    RIGHT OUTER JOIN Reviews 
+    ON Movies.id = Reviews.movie_id;
+```
+or finding matching columns with aliases
+```sql
+    SELECT m.title, r.review 
+    FROM Movies m
+    RIGHT OUTER JOIN Reviews r 
+    ON m.id = r.movie_id 
+    ORDER BY r.id;
+```
