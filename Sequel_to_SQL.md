@@ -199,3 +199,39 @@ or finding matching columns with aliases
     ON m.id = r.movie_id 
     ORDER BY r.id;
 ```
+
+#### Subqueries
+A query in a query. Notice `IN` clause
+```sql
+    SELECT Sum(sales) 
+    FROM Movies 
+    WHERE id IN 
+        (SELECT movie_id 
+        FROM Promotions 
+        WHERE category = "Non-cash");
+```
+Same result is achieved by using join
+```sql
+    SELECT Sum(m.sales) 
+    FROM Movies m 
+    INNER JOIN Promotions p 
+    ON m.id = p.movie_id 
+    WHERE p.category = 'Non-cash';
+```
+
+* **Subquery**: easier to read
+* **JOIN query**: better for performance
+
+Subquery syntax
+```sql
+    WHERE <field> IN (<subquery>) 
+    WHERE <field> NOT IN (<subquery>)
+```
+Using correlated subqueries
+```sql
+    SELECT * FROM Movies WHERE duration > 
+    (SELECT avg(duration) FROM Movies);
+```
+**Note!!!**: *aggregate function are not allowed in WHERE*
+
+That's why we have to use a subquery in the case above
