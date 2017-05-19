@@ -294,3 +294,81 @@ Conversely, the document will not match if only 1 criteria is met.
     // will not match
     // "sizes": [32, 64, 80]
 ```
+
+##### Customizing queries
+
+find() takes a second parameter called a “projection” that we can use to specify the exact
+fields we want back by setting their value to true.
+```bash
+    > db.potions.find(
+        {"grade": {"$gte": 80}},
+        {"vendor": true, "name": true}
+        // all other fields but the _id are automatically set to false
+    )
+```
+Excluding fields
+```bash
+    > db.potions.find(
+        {"grade": {""$gte: 80}},
+        {"vendor": false, "price": false}
+        // all other fields are set to true
+    )
+```
+The _id field is always returned whenever selecting or excluding fields. It’s the only field that
+can be set to false when selecting other fields.
+```bash
+    > db.potions.find(
+        {"grade": {""$gte: 80}},
+        {"vendor": true, "price": true, "_id": false}
+        // the only time we can mix an exclusion with selections
+    )
+```
+Whenever projecting, we either select or exclude the fields we want — we don’t do both.
+```bash
+    > db.potions.find(
+        {"grade": {""$gte: 80}},
+        {"vendor": true, "price": false}
+        // causes an error
+    )
+```
+##### The Cursor Object
+
+Whenever we search for documents, an object is returned from the find method called a
+“cursor object.”
+
+```bash
+    > db.potions.find({"vendor": "Kettlecooked"})
+    // By default, the first 20 documents are printed out
+    {"_id": ObjectId(...), ... }
+    {"_id": ObjectId(...), ... }
+    {"_id": ObjectId(...), ... }
+    ...
+```
+type "it" for more
+```bash
+    > it
+    // another 20 documents are printed out
+```
+##### Cursor methods
+Method on cursor that returns the count
+of matching documents
+```bash
+    > db.potions.find().count()
+    80
+```
+Sort
+```bash
+    > db.potions.find().sort({"price": 1})
+    // use 1 to order ascending
+    // use -1 to order descending
+```
+Basic pagination with `limit()` and `skip()` methods
+```bash
+    > db.potions.find().limit(3)
+    // prints out only 3 first documents
+    > db.potions.find().skip(4).limit(5)
+    // skips first 4 documents and prints out the following 5
+```
+This approach can become really expensive
+with large collections. 
+
