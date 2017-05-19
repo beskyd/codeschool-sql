@@ -118,3 +118,55 @@ We can search for potions by their ratings using dot notation to specify the emb
 we’d like to search
 ```bash
     > db.potions.find({"ratings.flavor": 5})
+```
+
+#### Removing and modifying documents
+
+Delete all documents that match a query
+```bash
+    > db.potions.remove(
+        {"name": "Love"}
+    )
+```
+Update a price of a single potion
+```bash
+    > db.potions.update(
+        {"name": "Love"},
+        {"$set": {"price": 3.99}}
+        // update operators always begin with a $
+    )
+```
+If the update parameter consists of only field/value pairs, then everything but the _id is
+replaced in the matching document.
+```bash
+    > db.potions.update(
+        {"name": "Love"},
+        {"price": 3.99 }
+    )
+```
+##### Updating multiple documents
+By default `update` method updates only the first matched document. To update multiple documents use a third parameter
+```bash
+    > db.potions.update(
+        {"name": "Love"},
+        {"$set": {"price": 3.99}},
+        {"multi": true}
+    )
+```
+Update a Document's count with the `$inc` operators
+```bash
+    > db.logs.update(
+        {"potion": "Shrinking"},
+        {"$inc": {"count": 1}}
+        // if field 'count' does not exist, it gets created with the value 1.
+    )
+```
+If we run update on a potion that does not exist, then nothing will happen. 
+The `upsert` option either updates an existing document or creates a new one.
+```bash
+    > db.logs.update(
+        {"potion": "Love"},
+        {"$inc": {"count": 1}},
+        {"upsert": true}
+    )
+```
