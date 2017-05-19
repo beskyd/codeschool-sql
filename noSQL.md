@@ -249,5 +249,48 @@ The `$pull` operator will remove any instance of a value from ana array
     )
 ```
 
+#### Query operations
 
+Querying with multiple criteria
+```bash
+    > db.portions.find(
+        {
+            "vendor": "Kettlecooked",
+            "ratings.strength": 5
+        }
+    )
+```
+Comparison query operators
+* `$gt` -- greater than
+* `$lt` -- less than
+* `$gte` -- greater than ar equal to
+* `$lte` -- less than or equal to
+* `$ne` -- not equal to
 
+```bash
+    > db.potions.find({ "price": {"$lt": 20} })
+    > db.potions.find({ "price": {"$gt": 10, "$lt": 20} })
+    > db.potions.find({ "vendor": {"$ne": "Brewers"} })
+```
+
+##### Range queries on an array
+Use `$elemMatch`
+to make sure at least 1 element matches all criteria.
+```bash
+    > db.potions.find(
+        {"sizes": {"$elemMatch": {"$gt": 8, "$lt": 16}}}
+    )
+```
+**Warning!** Be Careful When Querying Arrays With Ranges. Each value in the array is checked individually. If at least 1 array value is true for each criteria,
+the entire document matches.
+```bash 
+    {"sizes": {"$gt": 8, "$lt": 16}}
+    // both criteria are met by at least one value
+    // "sizes" : [2,8,16]
+```
+Conversely, the document will not match if only 1 criteria is met. 
+```bash
+    {"sizes": {"$gt": 8, "$lt": 16}}
+    // will not match
+    // "sizes": [32, 64, 80]
+```
