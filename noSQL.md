@@ -170,3 +170,84 @@ The `upsert` option either updates an existing document or creates a new one.
         {"upsert": true}
     )
 ```
+#### Advanced modifications
+Removing fields from documents
+```bash
+    > db.potions.update(
+        {}, // match all
+        {"$unset": {"color": ""}} // the value we pass does not impact the operation
+        {"multi": true} // update all potions
+    )
+```
+Updating a field name with `rename` 
+```bash
+    > db.potions.update(
+        {},
+        {"$rename": {"score": "grade"}},
+        {"multi": true}
+    )
+```
+Updating aray values by location using *dot notation*
+```bash
+    > db.potions.update(
+        {"name": "Shrinking"},
+        {"$set": {"ingredients.1": 42}} // update the array element with index 1
+    )
+```
+Updating values without knowing position using the positional operator. **Note:** only updates the first match *per document*
+```bash
+    db.potions.update(
+        {"ingredients": "secret"},
+        {"$set": {"ingredients.$": 42}}, // the $ is a placeholder for the matched value
+        {"multi": true}
+    )
+```
+Updating an embedded value using dot notation
+```bash
+    > db.potions.update(
+        {"name": "Shrinking"},
+        {"$set": {"ratings.strength": 5}}
+    )
+```
+##### Useful update operators
+
+* `$max` -- Updates if new value is greater than current or inserts if empty
+* `$min` -- Updates if new value is less than current or inserts if empty
+* `$mul` -- Multiplies current field value by specified value. If empty, it inserts 0.
+
+Usage : `{"$max": {"<field>": "<value>"}}`
+
+##### Modifying Arrays
+
+The `"$pop" operator will remove either the first (-1) or the last (1) element of an array
+```bash
+    > db.potions.update(
+        {"name": "Shrinking"},
+        {"$pop": {"categories": 1}} // removes the last element
+        {"$pop": {"categories": -1}} // removes the first element
+    )
+```
+The `$push` operator will add a value to the end of an array
+```bash
+    > db.potions.update(
+        {"name": "Shrinking"},
+        {"$push": {"categories": "budget"}}
+    )
+```
+The `$addToSet` operator will add the value to the end of an array unless it is already present
+```bash
+    > db.potions.update(
+        {"name": "Shrinking"},
+        {"$addToSet": {"categories": "budget"}}
+    )
+```
+The `$pull` operator will remove any instance of a value from ana array
+```bash
+    > db.potions.update(
+        {"name": "Shrinking"},
+        {"$pull": {"categories": "tasty"}}
+    )
+```
+
+
+
