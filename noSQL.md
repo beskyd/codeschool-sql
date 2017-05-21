@@ -372,3 +372,182 @@ Basic pagination with `limit()` and `skip()` methods
 This approach can become really expensive
 with large collections. 
 
+#### Aggregations (Aggregation Framework)
+
+Data Grouping
+```bash
+    > db.potions.aggregate(
+        [{"$group": {"_id": "$vendor_id"}}]
+    )
+```
+Here 
+* `$group` is a *stage operator* that's used to group data by any field we specify.
+* `_id` is the *group key* and is *required*
+* `$vendor_id` is a *field path*, i.e. a field name that begin with the `$` 
+
+```bash
+    // result
+    {"_id": "Kettlecooked"},
+    {"_id": "Brewers"},
+    {"_id": "Leprechaun Inc"}
+```
+
+##### Using Accumulators
+Anything specified after the group key is considered an accumulator. Accumulators take a single expression and compute the expression for grouped documents.
+```bash
+    > db.potions.aggregate(
+        [{"$group": {"_id": "$vendor_id", "total": {"$sum": 1} }}]
+    )
+```
+Here `$sum` is an accumulator. Will add `1` for each matched document.
+```bash
+    // result
+    {"_id": "Kettlecooked", "total": 2},
+    {"_id": "Brewers", "total": 1,},
+    {"_id": "Leprechaun Inc”, "total": 1}
+```
+##### Field Paths Vs. Operators
+* When values begin with a `$`, they represent field paths that point to the value.
+* When fields begin with a `$`, they are operators that perform a task.
+
+
+Summing the grade per vendor with a second accumulator
+```bash
+    > db.potions.aggregate(
+    [{"$group": {
+            "_id": "$vendor_id", 
+            "total" : {"$sum": 1},
+            "grade_total": {"$sum": "$grade"}
+        }
+    }]
+    )
+```
+```bash
+    // result
+    {"_id": "Kettlecooked", "total": 2, "grade_total": 400},
+    {"_id": "Brewers", "total": 1, "grade_total": 340},
+    {"_id": "Leprechaun Inc", "total": 1, "grade_total": 92}
+```
+Averaging potion grade per vendor
+```bash
+    > db.potions.aggregate([
+        {"$group": {
+            "_id": "$vendor_id",
+            "avg_grade": {"$avg": "$grade"} 
+            }
+        }
+    ])
+```
+```bash 
+    // result
+    {"_id": "Kettlecooked", "avg_grade": 82 },
+    {"_id": "Brewers","avg_grade": 57 }
+```
+Returning the Max Grade per vendor
+```bash
+    > db.potions.aggregate([
+        {"$group": {
+            "_id": "$vendor_id",
+            "max_grade": {"$max": "$grade"}
+            }
+        }
+    ])
+```
+```bash
+    // result
+    {"_id": "Kettlecooked", "max_grade": 94},
+    {"_id": "Brewers","max_grade": 84}
+```
+Using `$max` and `$min` together: we can use the same field in multiple accumulators
+```bash
+    > db.potions.aggregate([
+        {"$group": {
+            "_id": "$vendor_id",
+            "max_grade": {"$max": "$grade"},
+            "min_grade": {"$min": "$grade"}
+            }
+        }
+    ])
+```
+```bash
+    // result
+    {"_id": "Kettlecooked", "max_grade": 94, "min_grade": 70 },
+    {"_id": "Brewers", "max_grade": 84, "min_grade": 30 }
+```
+#### The Aggregation Pipeline
+The aggregate method acts like a pipeline, where we can pass data through many stages in order to change it along the way.
+```bash
+    > db.potions.aggregate([stage, stage, stage, ...])
+```
+##### Using the `$match` stage operator
+`$match` is just like a normal query and will only pass documents to the next stage if they meet the specified condition(s)
+```bash
+    > db.potions.aggregate([
+        {"$match": {"ingredients": "unicorn"}},
+        {"$group": 
+            {
+                "_id": "$vendor_id",
+                "potion_count": {"$sum": 1}
+            }
+        }
+    ])
+```
+```bash
+    // result
+    {"_id": "Poof", "potion_count": 20},
+    {"_id": "Kettlecooked","potion_count": 1}
+```
+Matching potions under $15, sorting, and limiting output.
+```bash
+    > db.potions.aggregate([
+        {"$match": {"price": {"$lt": 15}}},
+        {"$group": 
+            {
+                "_id": "$vendor_id", 
+                "avg_grade": {"$avg": "$grade"}
+            }
+        },
+        {"$sort": {"avg_grade": -1}}, // descending
+        {"$limit": 3}
+    ])
+```
+
+##### Optimizing the Pipeline
+It's best practice to only send the needed data from stage to stage. We can limit the fields we send over by using `$project`, which functions the same way as projections when we're querying with `find()`.
+```bash
+    > db.potions.aggregate([
+        {"$match": {"price": {"$lt": 15}}},
+        {"$project": {"_id": false, "vendor_id": true, "grade": true}},
+        {"$group": 
+            {
+                "_id": "$vendor_id", 
+                "avg_grade": {"$avg": "$grade"}
+            }
+        },
+        {"$sort": {"avg_grade": -1}}, // descending
+        {"$limit": 3}
+    ])
+```
+```bash
+    // results
+    {"_id": "Kettlecooked", "avg_grade": 99 },
+    {"_id": "Leprechaun Inc", "avg_grade": 95 },
+    {"_id": "Brewers", "avg_grade": 90 }
+```
+
+The `$match` operator can be used several times over the pipeline, and filter results based on an accumulator.
+```bash
+    > db.potions.aggregate([
+        {"$match": {"price": {"$lt": 15}}},
+        {"$project": {"_id": false, "vendor_id": true, "grade": true}},
+        {"$group": 
+            {
+                "_id": "$vendor_id", 
+                "avg_grade": {"$avg": "$grade"}
+            }
+        },
+        {"$match": {"avg_grade": {"$gt": 50}},
+        {"$sort": {"avg_grade": -1}}, // descending
+        {"$limit": 3}
+    ])
+```
